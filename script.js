@@ -57,6 +57,7 @@ function nodeSelected(element) {
 	
 	var editor = $('#nodeEdit');
 	editor.val(currentNode.text);
+	editor.focus();
 }
 
 function checkInput() {
@@ -164,10 +165,12 @@ function updateNodeImage(node) {
 	
 	var bbox = textNode.get(0).getBBox();
 	
+	textNode.attr('transform', 'translate(-' + (bbox.width / 2) + ' -2.5)');
+	
 	group.children('rect') // recalculate size of rectangle?
 		.attr('width', bbox.width + 1)
 		.attr('height', bbox.height + 1)
-		.attr('transform', 'translate(-0.5 -' + (bbox.height + 0.5) + ')');
+		.attr('transform', 'translate(-' + (bbox.width / 2 + 0.5) + ' -' + (bbox.height + 0.5) + ')');
 }
 
 function updateLine(link) {
