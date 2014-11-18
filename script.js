@@ -2,7 +2,10 @@ $(function () {
 	$('#nodeEdit').blur(checkInput);
 	
 	$('#graph').click(function () {
+		checkInput();
 		remClass($('#graph g.node.selected'), 'selected');
+		currentNode = '';
+		$('#nodeEdit').val('');
 	});
 });
 
@@ -77,7 +80,7 @@ function checkInput() {
 		editor.focus();
 		return;
 	}
-	if (allNodes.hasOwnProperty(name)) {
+	if (currentNode == null && allNodes.hasOwnProperty(name)) {
 		alert('Warning, you already have a node with this name. Please change it.');
 		editor.focus();
 		return;
@@ -107,6 +110,7 @@ function checkInput() {
 				destinationNode = allNodes[destinationName];
 			else {
 				destinationNode = new Node(destinationName, destinationName + '\r\n\r\n');
+				allNodes[destinationNode.name] = destinationNode;
 				updateNodeImage(destinationNode);
 			}
 			
