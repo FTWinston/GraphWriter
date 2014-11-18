@@ -10,11 +10,11 @@ body, html {height:100%;}
 }
 
 #sidebar {
-	position:absolute; left:0; top:2.5em; bottom:0; width: 36em; margin:0;
+	position:absolute; left:0; top:2.5em; bottom:0; width: 30em; margin:0;
 }
 
 #main {
-	position:absolute; left:36em; top:2.5em; bottom:0; right:0; margin:0;
+	position:absolute; left:30em; top:2.5em; bottom:0; right:0; margin:0;
 }
 
 #nodeEdit, #graph {

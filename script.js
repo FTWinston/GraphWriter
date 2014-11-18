@@ -4,7 +4,7 @@ $(function () {
 	$('#graph').click(function () {
 		checkInput();
 		remClass($('#graph g.node.selected'), 'selected');
-		currentNode = '';
+		currentNode = null;
 		$('#nodeEdit').val('');
 	});
 });
@@ -104,13 +104,15 @@ function checkInput() {
 		var line = lines[i];
 		if (line.length > 1 && line.substr(0, 1) == '#') {
 			var destinationName = line.substr(1).trim();
+			if (destinationName == '')
+				continue;
 			
 			var destinationNode;
-			if (allNodes.hasOwnProperty[destinationName])
+			if (allNodes.hasOwnProperty(destinationName))
 				destinationNode = allNodes[destinationName];
 			else {
 				destinationNode = new Node(destinationName, destinationName + '\r\n\r\n');
-				allNodes[destinationNode.name] = destinationNode;
+				allNodes[destinationName] = destinationNode;
 				updateNodeImage(destinationNode);
 			}
 			
@@ -136,7 +138,7 @@ function checkInput() {
 	}
 	for (var i=0; i<previousLinks.length; i++) {
 		var link = previousLinks[i];
-		removeLine(link);
+		deleteLine(link);
 	}
 	
 	editor.val('');
