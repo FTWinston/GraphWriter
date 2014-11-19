@@ -103,6 +103,8 @@ function checkInput() {
 		if (currentNode.name != name) {
 			delete allNodes[currentNode.name];
 			currentNode.name = name;
+			allNodes[currentNode.name] = currentNode;
+			updateNodeImage(currentNode);
 		}
 		currentNode.text = rawInput;
 	}
@@ -302,6 +304,7 @@ function save() {
 	
 	var content = $('<div/>').append(root).html();
 	window.location.href = 'data:application/octet-stream,' + encodeURIComponent(content);
+	return false;
 }
 
 function load(evt) {
