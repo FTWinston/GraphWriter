@@ -168,12 +168,12 @@ function updateNodeImage(node) {
 	
 	var bbox = textNode.get(0).getBBox();
 	
-	textNode.attr('transform', 'translate(-' + (bbox.width / 2) + ' -2.5)');
+	textNode.attr('transform', 'translate(-' + (bbox.width / 2) + ' ' + (bbox.height / 3) + ')');
 	
 	group.children('rect') // recalculate size of rectangle?
-		.attr('width', bbox.width + 1)
-		.attr('height', bbox.height + 1)
-		.attr('transform', 'translate(-' + (bbox.width / 2 + 0.5) + ' -' + (bbox.height + 0.5) + ')');
+		.attr('width', bbox.width + 10)
+		.attr('height', bbox.height + 2)
+		.attr('transform', 'translate(-' + (bbox.width / 2 + 5) + ' -' + (bbox.height / 2) + ')');
 }
 
 function updateLine(link) {

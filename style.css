@@ -27,6 +27,7 @@ body, html {height:100%;}
 	padding-left: 0.5em;
 	resize: none;
 	font-size: larger;
+	overflow-y: scroll;
 }
 
 #graph line.link.plain {
@@ -42,5 +43,6 @@ body, html {height:100%;}
 }
 
 #graph .node text {
+	font-size:28px;
 	pointer-events:none;
 }
