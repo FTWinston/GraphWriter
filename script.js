@@ -7,6 +7,9 @@ $(function () {
 		currentNode = null;
 		$('#nodeEdit').val('');
 	});
+	
+	$('#btnSave').click(save);
+	document.getElementById('fileInput').addEventListener('change', load, false);
 });
 
 var nextElementID = 1;
@@ -19,14 +22,21 @@ function Link(from, to, style) {
 	this.elementID = 'line' + (nextElementID++);
 }
 
-function Node(name, text) {
+function Node(name, text, x, y) {
 	this.name = name;
-	this.x = Math.floor((Math.random() * 480) + 10); this.y = Math.floor((Math.random() * 480) + 10);
+	if (x === undefined)
+		x = Math.floor((Math.random() * 480) + 10);
+	if (y === undefined)
+		y = Math.floor((Math.random() * 480) + 10);
+	this.x = x; this.y = y;
 	this.text = text;
 	this.elementID = 'node' + (nextElementID++);
 	
 	this.outgoingLinks = [];
 	this.incomingLinks = [];
+	
+	allNodes[name] = this;
+	updateNodeImage(this);
 }
 
 var LinkStyle = {
@@ -74,6 +84,7 @@ function checkInput() {
 		return; // no change
 
 	var lines = rawInput.split(/\r?\n/);
+	
 	var name = lines[0].trim();
 	if (name == '') {
 		alert('Please enter a node name on the first line.');
@@ -95,11 +106,18 @@ function checkInput() {
 		}
 		currentNode.text = rawInput;
 	}
-
-	allNodes[currentNode.name] = currentNode;
 	
-	var previousLinks = currentNode.outgoingLinks;
-	currentNode.outgoingLinks = [];
+	updateLinks(currentNode, lines);
+	
+	editor.val('');
+	currentNode = null;
+	remClass($('#graph g.node.selected'), 'selected');
+}
+
+function updateLinks(node, lines) {
+	var previousLinks = node.outgoingLinks;
+	node.outgoingLinks = [];
+	
 	for (var i=1; i<lines.length; i++) {
 		var line = lines[i];
 		if (line.length > 1 && line.substr(0, 1) == '#') {
@@ -110,15 +128,12 @@ function checkInput() {
 			var destinationNode;
 			if (allNodes.hasOwnProperty(destinationName))
 				destinationNode = allNodes[destinationName];
-			else {
+			else
 				destinationNode = new Node(destinationName, destinationName + '\r\n\r\n');
-				allNodes[destinationName] = destinationNode;
-				updateNodeImage(destinationNode);
-			}
 			
 			var link = $.grep(previousLinks, function(l) { return l.toNode == destinationNode; });
 			if (link.length == 0) {
-				link = new Link(currentNode, destinationNode, LinkStyle.Plain);
+				link = new Link(node, destinationNode, LinkStyle.Plain);
 				destinationNode.incomingLinks.push(link);
 			}
 			else {
@@ -126,24 +141,18 @@ function checkInput() {
 				arrayRemoveItem(previousLinks, link);
 			}
 			
-			currentNode.outgoingLinks.push(link);
+			node.outgoingLinks.push(link);
 		}
 	}
 	
-	updateNodeImage(currentNode);
-	
-	for (var i=0; i<currentNode.outgoingLinks.length; i++) {
-		var link = currentNode.outgoingLinks[i];
+	for (var i=0; i<node.outgoingLinks.length; i++) {
+		var link = node.outgoingLinks[i];
 		updateLine(link);
 	}
 	for (var i=0; i<previousLinks.length; i++) {
 		var link = previousLinks[i];
 		deleteLine(link);
 	}
-	
-	editor.val('');
-	currentNode = null;
-	remClass($('#graph g.node.selected'), 'selected');
 }
 
 function updateNodeImage(node) {
@@ -277,4 +286,60 @@ function dragStop(evt) {
 		.off('mousemove', dragMove)
 		.off('mouseout', dragStop)
 		.off('mouseup', dragStop);
+}
+
+function save() {
+	var root = $('<graph/>');
+	for (var name in allNodes) {
+		var node = allNodes[name];
+		
+		$('<node/>')
+			.attr('x', node.x)
+			.attr('y', node.y)
+			.text(node.text)
+			.appendTo(root);
+	}
+	
+	var content = $('<div/>').append(root).html();
+	window.location.href = 'data:application/octet-stream,' + encodeURIComponent(content);
+}
+
+function load(evt) {
+    var f = evt.target.files[0]; 
+
+    if (f) {
+      var r = new FileReader();
+      r.onload = function(e) { 
+	      loadData($(e.target.result)); 
+      }
+      r.readAsText(f);
+    }
+	else 
+      alert("Failed to load file");
+}
+
+function loadData(doc) {
+	allNodes = {};
+	nextElementID = 1;
+	$('#nodeEdit').val('');
+	$('#graph').html('');
+	currentNode = null;
+	
+	doc.children().each(function () {
+		var element = $(this);
+		var x = element.attr('x');
+		var y = element.attr('y');
+		var text = element.text();
+	
+		var lines = text.split(/\r?\n/);
+		var name = lines[0].trim();
+		var node = new Node(name, text, x, y);
+		allNodes[name] = node;
+	});
+	
+	for (var name in allNodes) {
+		var node = allNodes[name];
+		var lines = node.text.split(/\r?\n/);
+		updateLinks(node, lines);
+	}
 }

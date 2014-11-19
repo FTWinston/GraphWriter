@@ -9,6 +9,10 @@ body, html {height:100%;}
 	background-color:#ccc;
 }
 
+#header a, #header input{
+	margin-left:5em;
+	margin-top:0.5em;
+}
 #sidebar {
 	position:absolute; left:0; top:2.5em; bottom:0; width: 30em; margin:0;
 }
