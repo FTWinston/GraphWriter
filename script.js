@@ -159,11 +159,8 @@ function updateNodeImage(node) {
 			.appendTo(group);
 		
 		$(SVG('text')).appendTo(group);
-		
-		group.click(function(e) {
-			e.stopPropagation();
-			nodeSelected(this);
-		});
+		group.mousedown(dragStart)
+			.click(function (e) { e.stopPropagation(); });
 	}
 	
 	var textNode = group.children('text')
@@ -243,3 +240,41 @@ function arrayRemoveItem(array, itemToRemove) {
     }
     return false;
 };
+
+
+var dx = 0;
+var dy = 0;
+function dragStart(e) {
+	nodeSelected(this);
+	
+	dx = e.offsetX - currentNode.x;
+	dy = e.offsetY - currentNode.y;
+	
+	$('#graph')
+		.on('mousemove', dragMove)
+		.on('mouseout', dragStop)
+		.on('mouseup', dragStop);
+}
+
+function dragMove(e) {
+	if(currentNode == null)
+		return;
+	
+	var x = e.offsetX - dx;
+	var y = e.offsetY - dy;
+
+	currentNode.x = x; currentNode.y = y;
+	$('#' + currentNode.elementID).attr('transform', 'translate(' + x + ' ' + y + ')');
+	
+	for (var i=0; i<currentNode.incomingLinks.length; i++)
+		$('#' + currentNode.incomingLinks[i].elementID).attr('x2', x).attr('y2', y);
+	for (var i=0; i<currentNode.outgoingLinks.length; i++)
+		$('#' + currentNode.outgoingLinks[i].elementID).attr('x1', x).attr('y1', y);
+}
+
+function dragStop(evt) {
+	$('#graph')
+		.off('mousemove', dragMove)
+		.off('mouseout', dragStop)
+		.off('mouseup', dragStop);
+}
