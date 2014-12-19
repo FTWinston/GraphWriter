@@ -10,6 +10,7 @@ $(function () {
 	
 	$('#btnSave').click(save);
 	$('#btnLoad').click(function () { $('#fileInput').trigger('click'); return false; });
+	$('#btnDelete').click(function () { if (currentNode !== null && confirm("Delete selected node?")) deleteCurrentNode(); return false; });
 	document.getElementById('fileInput').addEventListener('change', load, false);
 });
 
@@ -155,6 +156,7 @@ function updateLinks(node, lines) {
 	for (var i=0; i<previousLinks.length; i++) {
 		var link = previousLinks[i];
 		deleteLine(link);
+		arrayRemoveItem(link.toNode.incomingLinks, link);
 	}
 }
 
@@ -346,4 +348,24 @@ function loadData(doc) {
 		var lines = node.text.split(/\r?\n/);
 		updateLinks(node, lines);
 	}
+}
+
+function deleteCurrentNode() {
+	// delete all incoming and outgoing links to this node
+	for (var i=0; i<currentNode.outgoingLinks.length; i++) {
+		var link = currentNode.outgoingLinks[i];
+		deleteLine(link);
+		arrayRemoveItem(link.toNode.incomingLinks, link);
+	}
+	for (var i=0; i<currentNode.incomingLinks.length; i++) {
+		var link = currentNode.incomingLinks[i];
+		deleteLine(link);
+		arrayRemoveItem(link.fromNode.outgoingLinks, link);
+	}
+	
+	delete allNodes[currentNode.name];
+	deleteNodeImage(currentNode);
+	
+	currentNode = null;
+	$('#nodeEdit').val('');
 }
