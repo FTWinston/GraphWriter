@@ -9,6 +9,7 @@ $(function () {
 	});
 	
 	$('#btnSave').click(save);
+	$('#btnLoad').click(function () { $('#fileInput').trigger('click'); });
 	document.getElementById('fileInput').addEventListener('change', load, false);
 });
 

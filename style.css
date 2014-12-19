@@ -9,7 +9,7 @@ body, html {height:100%;}
 	background-color:#ccc;
 }
 
-#header a, #header input{
+#header a {
 	margin-left:5em;
 	margin-top:0.5em;
 }
@@ -49,4 +49,8 @@ body, html {height:100%;}
 #graph .node text {
 	font-size:28px;
 	pointer-events:none;
+}
+
+#fileInput {
+	display:none;
 }
