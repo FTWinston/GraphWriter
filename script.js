@@ -220,8 +220,8 @@ function updateLinkText(link) {
 			.prependTo($('#graph'));
 		
 		textPath = $(SVG('textPath'))
-			.attr('startOffset', '20%')
 			.appendTo(text);
+		textPath[0].setAttribute('startOffset', '45');
 		textPath[0].setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + link.elementID);
 	}
 	else
