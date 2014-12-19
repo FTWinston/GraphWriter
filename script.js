@@ -70,6 +70,11 @@ function nodeSelected(element) {
 	remClass($('#graph g.node.selected'), 'selected');
 	addClass(element, 'selected');
 	
+	// remove element from DOM and re-add it, because SVG z-index is based on element order
+	var parent = element.parentNode;
+	parent.removeChild(element);
+	parent.appendChild(element);
+	
 	var editor = $('#nodeEdit');
 	editor.val(currentNode.text);
 	editor.focus();
