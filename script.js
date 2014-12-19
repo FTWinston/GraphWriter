@@ -22,6 +22,7 @@ function Link(from, to, style) {
     this.toNode = to;
 	this.style = style;
 	this.elementID = 'line' + (nextElementID++);
+	this.text = 'link text blah';
 }
 
 function Node(name, text, x, y) {
@@ -157,6 +158,7 @@ function updateLinks(node, lines) {
 	for (var i=0; i<node.outgoingLinks.length; i++) {
 		var link = node.outgoingLinks[i];
 		updateLine(link);
+		updateLinkText(link);
 	}
 	for (var i=0; i<previousLinks.length; i++) {
 		var link = previousLinks[i];
@@ -198,17 +200,34 @@ function updateNodeImage(node) {
 function updateLine(link) {
 	var line = $('#' + link.elementID);
 	if (line.length == 0) {
-		line = $(SVG('line'))
+		line = $(SVG('path'))
 			.attr('class', 'link plain')
 			.attr('id', link.elementID)
 			.prependTo($('#graph'));
 	}
 	
 	// set x & y of each end
-	line.attr('x1', link.fromNode.x)
-		.attr('x2', link.toNode.x)
-		.attr('y1', link.fromNode.y)
-		.attr('y2', link.toNode.y);
+	line.attr('d', 'M' + link.fromNode.x + ' ' + link.fromNode.y + ' L' + link.toNode.x + ' ' + link.toNode.y + ' Z');
+}
+
+function updateLinkText(link) {
+	var text = $('#' + link.elementID + '_text');
+	var textPath;
+	if (text.length == 0) {
+		text = $(SVG('text'))
+			.attr('class', 'link')
+			.attr('id', link.elementID + '_text')
+			.prependTo($('#graph'));
+		
+		textPath = $(SVG('textPath'))
+			.attr('startOffset', '20%')
+			.appendTo(text);
+		textPath[0].setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + link.elementID);
+	}
+	else
+		textPath = text.children();
+	
+	textPath.text(link.text);
 }
 
 function deleteNodeImage(node) {
@@ -217,6 +236,7 @@ function deleteNodeImage(node) {
 
 function deleteLine(link) {
 	$('#' + link.elementID).remove();
+	$('#' + link.elementID + '_text').remove();
 }
 
 function SVG(tag) {
@@ -286,9 +306,9 @@ function dragMove(e) {
 	$('#' + currentNode.elementID).attr('transform', 'translate(' + x + ' ' + y + ')');
 	
 	for (var i=0; i<currentNode.incomingLinks.length; i++)
-		$('#' + currentNode.incomingLinks[i].elementID).attr('x2', x).attr('y2', y);
+		updateLine(currentNode.incomingLinks[i]);
 	for (var i=0; i<currentNode.outgoingLinks.length; i++)
-		$('#' + currentNode.outgoingLinks[i].elementID).attr('x1', x).attr('y1', y);
+		updateLine(currentNode.outgoingLinks[i]);
 }
 
 function dragStop(evt) {
