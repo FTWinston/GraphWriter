@@ -219,8 +219,12 @@ function updateLine(link) {
 			.prependTo($('#graph'));
 	}
 	
+	var leftward = link.fromNode.x > link.toNode.x;
+	var leftNode = leftward ? link.toNode : link.fromNode;
+	var rightNode = leftward ? link.fromNode : link.toNode;
+	
 	// set x & y of each end
-	line.attr('d', 'M' + link.fromNode.x + ' ' + link.fromNode.y + ' L' + link.toNode.x + ' ' + link.toNode.y + ' Z');
+	line.attr('d', 'M' + leftNode.x + ' ' + leftNode.y + ' L' + rightNode.x + ' ' + rightNode.y + ' Z');
 }
 
 function updateLinkText(link) {
@@ -236,11 +240,12 @@ function updateLinkText(link) {
 		textElem = $(SVG('text'))
 			.attr('class', 'link')
 			.attr('id', link.elementID + '_text')
+			.attr('text-anchor', 'middle')
 			.prependTo($('#graph'));
 		
 		textPath = $(SVG('textPath'))
 			.appendTo(textElem);
-		textPath[0].setAttribute('startOffset', '45');
+		textPath[0].setAttribute('startOffset', '25%');
 		textPath[0].setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + link.elementID);
 	}
 	else
