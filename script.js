@@ -22,7 +22,7 @@ function Link(from, to, style) {
     this.toNode = to;
 	this.style = style;
 	this.elementID = 'line' + (nextElementID++);
-	this.text = 'link text blah';
+	this.text = null;
 }
 
 function Node(name, text, x, y) {
@@ -131,9 +131,22 @@ function updateLinks(node, lines) {
 	for (var i=1; i<lines.length; i++) {
 		var line = lines[i];
 		if (line.length > 1 && line.substr(0, 1) == '#') {
-			var destinationName = line.substr(1).trim();
-			if (destinationName == '')
+			var lineContent = line.substr(1).trim();
+			if (lineContent == '')
 				continue;
+			
+			var destinationName = lineContent;
+			var linkText = null;
+			var separator = lineContent.indexOf('#')
+			if (separator != -1)
+			{
+				destinationName = lineContent.substr(0, separator).trim();
+				linkText = lineContent.substr(separator + 1).trim();
+				if (destinationName == '')
+					continue;
+				if (linkText == '')
+					linkText = null;
+			}
 			
 			var destinationNode;
 			if (allNodes.hasOwnProperty(destinationName))
@@ -150,7 +163,7 @@ function updateLinks(node, lines) {
 				link = link[0];
 				arrayRemoveItem(previousLinks, link);
 			}
-			
+			link.text = linkText;
 			node.outgoingLinks.push(link);
 		}
 	}
@@ -211,21 +224,27 @@ function updateLine(link) {
 }
 
 function updateLinkText(link) {
-	var text = $('#' + link.elementID + '_text');
+	var textElem = $('#' + link.elementID + '_text');
+	
+	if (link.text == null) 	{
+		textElem.remove();
+		return;
+	}
+	
 	var textPath;
-	if (text.length == 0) {
-		text = $(SVG('text'))
+	if (textElem.length == 0) {
+		textElem = $(SVG('text'))
 			.attr('class', 'link')
 			.attr('id', link.elementID + '_text')
 			.prependTo($('#graph'));
 		
 		textPath = $(SVG('textPath'))
-			.appendTo(text);
+			.appendTo(textElem);
 		textPath[0].setAttribute('startOffset', '45');
 		textPath[0].setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + link.elementID);
 	}
 	else
-		textPath = text.children();
+		textPath = textElem.children();
 	
 	textPath.text(link.text);
 }
