@@ -11,14 +11,16 @@
 <body>
 
 <div id="header">
-	<a href="#" id="btnLoad">load from file</a>
+	<a href="#" id="btnLoad" class="menuItem">load from file</a>
 	<input type="file" id="fileInput" />
-	<a href="#" id="btnSave">save to file</a>
-	<a href="#" id="btnDelete">delete node</a>
+	<a href="#" id="btnSave" class="menuItem">save to file</a>
+	<a href="#" id="btnDelete" class="menuItem">delete node</a>
+	<span id="spnMode" class="menuItem">in edit mode</span><a href="#" id="btnMode">switch to view mode</a>
 </div>
 
 <div id="sidebar">
 	<textarea id="nodeEdit"></textarea>
+	<div id="nodeView"></div>
 </div>
 
 <div id="main">

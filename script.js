@@ -11,9 +11,11 @@ $(function () {
 	$('#btnSave').click(save);
 	$('#btnLoad').click(function () { $('#fileInput').trigger('click'); return false; });
 	$('#btnDelete').click(function () { if (currentNode !== null && confirm("Delete selected node?")) deleteCurrentNode(); return false; });
+	$('#btnMode').click(function () { toggleMode(); return false; });
 	document.getElementById('fileInput').addEventListener('change', load, false);
 });
 
+var editMode = true;
 var nextElementID = 1;
 var allNodes = {};
 
@@ -32,7 +34,8 @@ function Node(name, text, x, y) {
 	if (y === undefined)
 		y = Math.floor((Math.random() * 480) + 10);
 	this.x = x; this.y = y;
-	this.text = text;
+	this.editText = text;
+	this.viewText = calculateView(text);
 	this.elementID = 'node' + (nextElementID++);
 	
 	this.outgoingLinks = [];
@@ -77,8 +80,11 @@ function nodeSelected(element) {
 	parent.appendChild(element);
 	
 	var editor = $('#nodeEdit');
-	editor.val(currentNode.text);
+	editor.val(currentNode.editText);
 	editor.focus();
+	
+	var viewer = $('#nodeView');
+	viewer.html(currentNode.viewText);
 }
 
 function checkInput() {
@@ -88,7 +94,7 @@ function checkInput() {
 	if (rawInput == '')
 		return;
 	
-	if (currentNode != null && rawInput == currentNode.text)
+	if (currentNode != null && rawInput == currentNode.editText)
 		return; // no change
 
 	var lines = rawInput.split(/\r?\n/);
@@ -114,7 +120,8 @@ function checkInput() {
 			allNodes[currentNode.name] = currentNode;
 			updateNodeImage(currentNode);
 		}
-		currentNode.text = rawInput;
+		currentNode.editText = rawInput;
+		currentNode.viewText = calculateView(rawInput);
 	}
 	
 	updateLinks(currentNode, lines);
@@ -350,7 +357,7 @@ function save() {
 		$('<node/>')
 			.attr('x', node.x)
 			.attr('y', node.y)
-			.text(node.text)
+			.text(node.editText)
 			.appendTo(root);
 	}
 	
@@ -394,7 +401,7 @@ function loadData(doc) {
 	
 	for (var name in allNodes) {
 		var node = allNodes[name];
-		var lines = node.text.split(/\r?\n/);
+		var lines = node.editText.split(/\r?\n/);
 		updateLinks(node, lines);
 	}
 }
@@ -417,4 +424,56 @@ function deleteCurrentNode() {
 	
 	currentNode = null;
 	$('#nodeEdit').val('');
+}
+
+function toggleMode() {
+	editMode = !editMode;
+	$('#spnMode').text(editMode ? 'in edit mode' : 'in view mode');
+	$('#btnMode').text(editMode ? 'switch to view mode' : 'switch to edit mode');
+	
+	$(editMode ? '#nodeEdit' : '#nodeView').show();
+	$(editMode ? '#nodeView' : '#nodeEdit').hide();
+}
+
+function calculateView(rawInput) {
+	var output = '';
+	
+	var lines = rawInput.split(/\r?\n/);
+	output += '<h3>' + lines[0].trim() + '</h3>';
+	var reachedContent = false;
+	for (var i=1; i<lines.length; i++) {
+		var line = lines[i];
+		if (line.length > 1 && line.substr(0, 1) == '#')
+			continue;
+		
+		if (reachedContent)
+			output += '<br/>';
+		else if (line.trim().length > 0)
+			reachedContent = true;
+
+		output += line;
+	}
+	
+	output = markup(output, '*', 'div', 'description');
+	output = markup(output, '@', 'span', 'link');
+	return output;
+}
+
+function markup(text, marker, tag, cssClass) {
+	var pos = 0;
+	var inSection = false;
+	
+	while (true) {
+		pos = text.indexOf(marker, pos);
+		if (pos == -1)
+			break;
+		
+		if (inSection)
+			text = text.replace(marker, '</' + tag + '>');
+		else
+			text= text.replace(marker, '<' + tag + ' class="' + cssClass + '">');
+		inSection = !inSection;
+	}
+
+	return text;
 }
