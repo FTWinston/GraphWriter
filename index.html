@@ -4,6 +4,8 @@
         <meta charset="utf-8" />
         <title>Graph Writer</title>
 		<script src="https://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+		<script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js" type="text/javascript"></script>
+		<link href="https://code.jquery.com/ui/1.11.2/themes/black-tie/jquery-ui.css" rel="stylesheet" />
         <script src="script.js" type="text/javascript"></script>
 		<link href="style.css" rel="stylesheet" />
 </head>
@@ -16,15 +18,23 @@
 	<a href="#" id="btnSave" class="menuItem">save to file</a>
 	<a href="#" id="btnDelete" class="menuItem">delete node</a>
 	<span id="spnMode" class="menuItem">in edit mode</span><a href="#" id="btnMode">switch to view mode</a>
+	<a href="#" id="btnLookups" class="menuItem">manage lookups</a>
 </div>
 
 <div id="sidebar">
 	<textarea id="nodeEdit"></textarea>
-	<div id="nodeView"></div>
+	<div id="nodeView" style="display:none"></div>
 </div>
 
 <div id="main">
 	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="graph"></svg>
 </div>
+
+<div id="lookupPopup"></div>
+<div id="manageLookups">
+	<ul id="lookupList"></ul>
+	<textarea id="lookupEdit"></textarea>
+</div>
+
 </body>
 </html>

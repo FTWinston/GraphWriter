@@ -71,4 +71,25 @@ body, html {height:100%;}
 
 #nodeView .link {
 	text-decoration: underline;
+	cursor:pointer;
+}
+
+#lookupList {
+	position:absolute;
+	top: 0px;
+	left: 0px;
+	width: 150px;
+}
+
+#lookupEdit {
+	position:absolute;
+	display:block;
+	top: 0px;
+	left: 200px;
+	width: 425px;
+	bottom: 0px;
+}
+
+#lookupList li.selected {
+	color: red;
 }

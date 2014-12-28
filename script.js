@@ -12,13 +12,42 @@ $(function () {
 	$('#btnLoad').click(function () { $('#fileInput').trigger('click'); return false; });
 	$('#btnDelete').click(function () { if (currentNode !== null && confirm("Delete selected node?")) deleteCurrentNode(); return false; });
 	$('#btnMode').click(function () { toggleMode(); return false; });
+	$('#btnLookups').click(function () { $('#manageLookups').dialog('open'); return false; });
+	$('#nodeView').on('click', '.link', function(event) { openLookup($(event.currentTarget).text()) });
 	document.getElementById('fileInput').addEventListener('change', load, false);
-	$('#nodeView').on('mouseover', '.link', hoverLink);
+	
+	$('#lookupPopup').dialog({
+      autoOpen: false,
+      height: 500,
+      width: 500,
+      modal: true,
+	});
+	$('#manageLookups').dialog({
+      autoOpen: false,
+      height: 500,
+      width: 650,
+      modal: true,
+	  title: 'Manage lookups',
+      buttons: {
+        Add: function() { /* prompt, add to list */ },
+		Remove: function() { /* remove selected */ }
+	  },
+	  beforeClose: function() { saveSelectedLookup();}
+	});
+	
+	$('#lookupList').on('click', 'li', function() {
+		saveSelectedLookup();
+		var name = $(this).addClass('selected').text();
+		$('#lookupEdit')
+			.val(allLookups[name])
+			.focus();
+	});
 });
 
 var editMode = true;
 var nextElementID = 1;
 var allNodes = {};
+var allLookups = {};
 
 function Link(from, to, style) {
     this.fromNode = from;
@@ -352,6 +381,14 @@ function dragStop(evt) {
 
 function save() {
 	var root = $('<graph/>');
+	var lookups = $('<lookups/>');
+	lookups.appendTo(root);
+	for (var name in allLookups)
+		$('<lookup/>')
+			.attr('name', name)
+			.text(allLookups[name])
+			.appendTo(lookups);
+	
 	for (var name in allNodes) {
 		var node = allNodes[name];
 		
@@ -383,13 +420,27 @@ function load(evt) {
 
 function loadData(doc) {
 	allNodes = {};
+	allLookups = {};
 	nextElementID = 1;
 	$('#nodeEdit').val('');
 	$('#graph').html('');
 	currentNode = null;
 	
+	var first = true;
 	doc.children().each(function () {
 		var element = $(this);
+		
+		if (first) {
+			first = false;
+			if (element.get(0).nodeName.toLowerCase() == 'lookups') {
+				element.children().each(function () {
+					var child = $(this);
+					allLookups[child.attr('name')] = child.text();
+				});
+				return;
+			}
+		}
+		
 		var x = element.attr('x');
 		var y = element.attr('y');
 		var text = element.text();
@@ -456,7 +507,7 @@ function calculateView(rawInput) {
 	}
 	
 	output = markup(output, '*', 'div', 'description');
-	output = markup(output, '@', 'span', 'link', addNewPopup);
+	output = markup(output, '@', 'span', 'link', addNewLookup);
 	return output;
 }
 
@@ -498,10 +549,29 @@ function markup(text, marker, tag, cssClass, forEach) {
 	return text.replace(/<\/div><br\/><br\/>/, '</div><br/>').replace(/<br\/><br\/><div/, '<br/><div');
 }
 
-function hoverLink(event, ui) {
-	console.log('yo link: ', $(event.currentTarget).text());
+function openLookup(name) {
+	if (!allLookups.hasOwnProperty(name))
+		return;
+	
+	$('#lookupPopup')
+		.text(allLookups[name])
+		.dialog('option', 'title', name)
+		.dialog('open');
 }
 
-function addNewPopup(name) {
-	console.log('new hover thing: ' + name);	
+function addNewLookup(name) {
+	if (allLookups.hasOwnProperty(name))
+		return;
+	allLookups[name] = '';
+	$('#lookupList').append('<li>' + name + '</li>');
+}
+
+function saveSelectedLookup() {
+	var existing = $('#lookupList li.selected');
+	if (existing.length == 0)
+		return;
+
+	existing.removeClass('selected');
+	var name = existing.text();
+	allLookups[name] = $('#lookupEdit').val();
 }
