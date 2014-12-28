@@ -13,6 +13,7 @@ $(function () {
 	$('#btnDelete').click(function () { if (currentNode !== null && confirm("Delete selected node?")) deleteCurrentNode(); return false; });
 	$('#btnMode').click(function () { toggleMode(); return false; });
 	document.getElementById('fileInput').addEventListener('change', load, false);
+	$('#nodeView').on('mouseover', '.link', hoverLink);
 });
 
 var editMode = true;
@@ -455,25 +456,52 @@ function calculateView(rawInput) {
 	}
 	
 	output = markup(output, '*', 'div', 'description');
-	output = markup(output, '@', 'span', 'link');
+	output = markup(output, '@', 'span', 'link', addNewPopup);
 	return output;
 }
 
-function markup(text, marker, tag, cssClass) {
-	var pos = 0;
+function markup(text, marker, tag, cssClass, forEach) {
+	var sectionStart = -1;
 	var inSection = false;
 	
 	while (true) {
-		pos = text.indexOf(marker, pos);
+		var pos = text.indexOf(marker, pos);
 		if (pos == -1)
 			break;
 		
-		if (inSection)
+		if (inSection) {
 			text = text.replace(marker, '</' + tag + '>');
-		else
+			
+			if (forEach !== undefined) {
+				var entry = text.substr(sectionStart, pos - sectionStart);
+				forEach(entry);
+			}
+		}
+		else {
 			text= text.replace(marker, '<' + tag + ' class="' + cssClass + '">');
+			pos += tag.length + cssClass.length + 11;
+			sectionStart = pos;
+		}
 		inSection = !inSection;
 	}
 
-	return text;
+	if (inSection) {
+		if (forEach !== undefined) {
+			var entry = text.susbstr(sectionStart);
+			forEach(entry);
+		}
+		
+		text += '</' + tag + '>'
+	}
+	
+	// remove <br/> tags immediately before or after divs
+	return text.replace(/<\/div><br\/><br\/>/, '</div><br/>').replace(/<br\/><br\/><div/, '<br/><div');
+}
+
+function hoverLink(event, ui) {
+	console.log('yo link: ', $(event.currentTarget).text());
+}
+
+function addNewPopup(name) {
+	console.log('new hover thing: ' + name);	
 }

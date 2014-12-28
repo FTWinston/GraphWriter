@@ -65,7 +65,8 @@ body, html {height:100%;}
 
 #nodeView .description {
 	font-style: italic;
-	background-color: LightGray;
+	background-color: #fed;
+	padding: 5px;
 }
 
 #nodeView .link {
