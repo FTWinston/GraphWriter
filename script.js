@@ -435,7 +435,7 @@ function loadData(doc) {
 			if (element.get(0).nodeName.toLowerCase() == 'lookups') {
 				element.children().each(function () {
 					var child = $(this);
-					allLookups[child.attr('name')] = child.text();
+					addNewLookup(child.attr('name'), child.text());
 				});
 				return;
 			}
@@ -559,10 +559,11 @@ function openLookup(name) {
 		.dialog('open');
 }
 
-function addNewLookup(name) {
+function addNewLookup(name, value) {
 	if (allLookups.hasOwnProperty(name))
 		return;
-	allLookups[name] = '';
+
+	allLookups[name] = value === undefined ? '' : value;
 	$('#lookupList').append('<li>' + name + '</li>');
 }
 
