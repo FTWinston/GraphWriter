@@ -18,7 +18,7 @@ $(function () {
 	
 	$('#lookupPopup').dialog({
       autoOpen: false,
-      height: 500,
+      height: 850,
       width: 500,
       modal: true,
 	});
@@ -554,7 +554,7 @@ function openLookup(name) {
 		return;
 	
 	$('#lookupPopup')
-		.text(allLookups[name])
+		.html(allLookups[name].replace(/\r?\n/g, '<br/>'))
 		.dialog('option', 'title', name)
 		.dialog('open');
 }
