@@ -44,6 +44,12 @@ $(function () {
 	});
 });
 
+
+function closeEditorWarning(){
+    return 'Ensure that you save your changes before quitting.'
+}
+window.onbeforeunload = closeEditorWarning;
+
 var editMode = true;
 var nextElementID = 1;
 var allNodes = {};
